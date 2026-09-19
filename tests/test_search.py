@@ -226,8 +226,10 @@ async def test_smart_search(
 async def test_search_can_follow_all_pages(mock_immich_with_data, method: str):
     """An unlimited search follows every page until Immich signals completion."""
     api = await mock_immich_with_data()
-    first_page = {"assets": {"items": [], "nextPage": 2}}
-    second_page = {"assets": {"items": [], "nextPage": None}}
+    first_page: dict[str, dict[str, object]] = {"assets": {"items": [], "nextPage": 2}}
+    second_page: dict[str, dict[str, object]] = {
+        "assets": {"items": [], "nextPage": None}
+    }
     api.api.async_do_request = AsyncMock(side_effect=[first_page, second_page])
 
     if method == "async_get_all":
