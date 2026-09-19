@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, call
 
 import pytest
 from syrupy.assertion import SnapshotAssertion
@@ -237,3 +237,11 @@ async def test_search_can_follow_all_pages(mock_immich_with_data, method: str):
 
     assert assets == []
     assert api.api.async_do_request.await_count == 2
+    endpoint = "search/metadata" if method == "async_get_all" else "search/smart"
+    first_request: dict[str, int | str] = {"size": 100, "page": 1}
+    if method == "async_smart_search":
+        first_request["query"] = "my search string"
+    assert api.api.async_do_request.await_args_list == [
+        call(endpoint, data=first_request, method="POST"),
+        call(endpoint, data={**first_request, "page": 2}, method="POST"),
+    ]
